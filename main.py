@@ -94,6 +94,9 @@ def scan_message(message):
             except:
                 pass
         else:
+            bot.restrict_chat_member(message.chat.id, message.from_user.id, until_date=None,
+                                     can_send_other_messages=True, can_send_media_messages=True,
+                                     can_add_web_page_previews=True, can_send_messages=True)
             userList.pop(str(message.from_user.id))
 
 
