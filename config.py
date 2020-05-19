@@ -1,3 +1,5 @@
 TOKEN = ""
 SALT = ""
 VERURL = ""
+BOTPATH = ""
+LOGCHATID = ""
