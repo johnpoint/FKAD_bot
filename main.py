@@ -28,13 +28,13 @@ def welcome_new(message):
 
 def getUrl(userID, secret):
     global userList
-    userList[str(userID)] = sha1(sha1((str(userID) + secret).encode('utf-8')).hexdigest()).hexdigest()
+    userList[str(userID)] = sha1(sha1((str(userID) + secret)).hexdigest()).hexdigest()
     return sha1((str(userID) + secret).encode('utf-8')).hexdigest()
 
 
 def getSecret(userID):
     str1 = str(userID) + config.SALT
-    return md5(md5(str1.encode('utf-8')).hexdigest())
+    return md5(md5(str1).hexdigest())
 
 
 @bot.message_handler(regexp=[''])
