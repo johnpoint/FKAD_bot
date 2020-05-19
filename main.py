@@ -12,7 +12,7 @@ userList = {}
 def welcome_new(message):
     global userList
     NewMemberID = message.new_chat_members[0].id
-    secret = getSecret(NewMemberID)
+    secret = getSecret(str(NewMemberID))
     userList.append({str(NewMemberID): secret})
     try:
         bot.restrict_chat_member(message.chat.id, NewMemberID, until_date=None, can_send_messages=True,
@@ -33,8 +33,8 @@ def getUrl(userID, secret):
 
 
 def getSecret(userID):
-    str = str(userID) + config.SALT
-    return md5(md5(str.encode('utf-8')).hexdigest())
+    str1 = str(userID) + config.SALT
+    return md5(md5(str1.encode('utf-8')).hexdigest())
 
 
 @bot.message_handler(regexp=[''])
