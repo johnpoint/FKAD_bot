@@ -72,7 +72,9 @@ def welcome_new(message):
     except BaseException:
         pass
     bot.send_message(message.chat.id,
-                     "请点击 [链接](" + config.VERURL + "#" + getUrl(NewMemberID) + ") 后在本群回复验证码进行人机检验,回复其他内容将会被立即踢出！",
+                     "请 [" + message.new_chat_members[0].first_name + "](tg://user?id=" + str(
+                         NewMemberID) + ") 点击 [链接](" + config.VERURL + "#" + getUrl(
+                         NewMemberID) + ") 后在本群回复验证码进行人机检验,回复其他内容将会被立即踢出！",
                      parse_mode="Markdown")
 
 
