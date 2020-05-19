@@ -3,6 +3,7 @@ import re
 import telebot
 import config
 from hashlib import sha1
+import time
 
 bot = telebot.TeleBot(config.TOKEN)
 userList = {}
@@ -71,16 +72,19 @@ def welcome_new(message):
                                  can_send_other_messages=False)
     except BaseException:
         pass
-    bot.send_message(message.chat.id,
-                     "请 [" + message.new_chat_members[0].first_name + "](tg://user?id=" + str(
-                         NewMemberID) + ") 点击 [链接](" + config.VERURL + "#" + getUrl(
-                         NewMemberID) + ") 后在本群回复验证码进行人机检验,回复其他内容将会被立即踢出！",
-                     parse_mode="Markdown")
+    msg1 = bot.send_message(message.chat.id,
+                            "请 [" + message.new_chat_members[0].first_name + "](tg://user?id=" + str(
+                                NewMemberID) + ") 点击 [链接](" + config.VERURL + "#" + getUrl(
+                                NewMemberID) + ") 后在本群回复验证码进行人机检验,回复其他内容将会被立即踢出！",
+                            parse_mode="Markdown").message_id
+    time.sleep(20)
+    bot.delete_message(message.chat.id, msg1)
+    bot.delete_message(message.chat.id, message.message_id)
 
 
 def getUrl(userID):
     global userList
-    url = sha1((str(userID) + config.SALT).encode("utf-8")).hexdigest()
+    url = sha1((str(userID) + config.SALT + str(time.time())).encode("utf-8")).hexdigest()
     print(url)
     userList[str(userID)] = sha1(("#" + url).encode("utf-8")).hexdigest().upper()
     return url
@@ -100,6 +104,9 @@ def scan_message(message):
                                      can_send_other_messages=True, can_send_media_messages=True,
                                      can_add_web_page_previews=True, can_send_messages=True)
             userList.pop(str(message.from_user.id))
+            msg = bot.reply_to(message, "验证成功~").message_id
+            time.sleep(10)
+            bot.delete_message(message.chat.id, msg)
 
 
 if __name__ == '__main__':
