@@ -77,7 +77,7 @@ def welcome_new(message):
                                 NewMemberID) + ") 点击 [链接](" + config.VERURL + "#" + getUrl(
                                 NewMemberID) + ") 后在本群回复验证码进行人机检验,回复其他内容将会被立即踢出！",
                             parse_mode="Markdown").message_id
-    time.sleep(20)
+    time.sleep(30)
     bot.delete_message(message.chat.id, msg1)
     bot.delete_message(message.chat.id, message.message_id)
 
