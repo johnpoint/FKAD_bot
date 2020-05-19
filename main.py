@@ -107,7 +107,7 @@ def scan_message(message):
             msg = bot.reply_to(message, "验证成功~").message_id
             time.sleep(10)
             bot.delete_message(message.chat.id, msg)
-            bot.delete_message(message.chat.id, message)
+            bot.delete_message(message.chat.id, message.message_id)
 
 
 if __name__ == '__main__':
