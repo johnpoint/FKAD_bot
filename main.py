@@ -65,7 +65,6 @@ def welcome_new(message):
             return
     except BaseException:
         pass
-    global userList
     try:
         bot.restrict_chat_member(message.chat.id, NewMemberID, until_date=None, can_send_messages=True,
                                  can_add_web_page_previews=False, can_send_media_messages=False,
@@ -80,6 +79,12 @@ def welcome_new(message):
     time.sleep(30)
     bot.delete_message(message.chat.id, msg1)
     bot.delete_message(message.chat.id, message.message_id)
+    time.sleep(30)
+    global userList
+    if str(NewMemberID) in userList:
+        bot.kick_chat_member(message.chat.id, NewMemberID, until_date=None)
+        bot.restrict_chat_member(message.chat.id, NewMemberID, until_date=None, can_send_messages=True)
+        userList.pop(str(NewMemberID))
 
 
 def getUrl(userID):
