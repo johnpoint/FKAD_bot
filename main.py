@@ -1,5 +1,4 @@
 import re
-
 import telebot
 import config
 from hashlib import sha1
@@ -48,6 +47,7 @@ def ver_black(name):
 @bot.message_handler(content_types=['new_chat_members'])
 def welcome_new(message):
     NewMemberID = message.new_chat_members[0].id
+    update_ban_username()
     try:
         if ver_black(message.new_chat_members[0].first_name):
             bot.kick_chat_member(message.chat.id, NewMemberID, until_date=None)
