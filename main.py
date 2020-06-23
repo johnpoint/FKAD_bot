@@ -109,7 +109,10 @@ def scan_message(message):
                                      can_send_other_messages=True, can_send_media_messages=True,
                                      can_add_web_page_previews=True, can_send_messages=True)
             userList.pop(str(message.from_user.id))
-            msg = bot.reply_to(message, "验证成功~").message_id
+            try:
+                msg = bot.reply_to(message, "验证成功~").message_id
+            except:
+                pass
             time.sleep(10)
             bot.delete_message(message.chat.id, msg)
         bot.delete_message(message.chat.id, message.message_id)
