@@ -47,19 +47,23 @@ def ver_black(name):
 @bot.message_handler(content_types=['new_chat_members'])
 def welcome_new(message):
     NewMemberID = message.new_chat_members[0].id
+    bot.restrict_chat_member(
+        message.chat.id, NewMemberID, until_date=None, can_send_messages=True)
     update_ban_username()
     try:
         if ver_black(message.new_chat_members[0].first_name):
             bot.kick_chat_member(message.chat.id, NewMemberID, until_date=None)
             bot.send_message(LOGCHATID,
-                             "== BAN AD ==\nID: [" + str(NewMemberID) + "](tg://user?id=" + str(NewMemberID) + ")",
+                             "== BAN AD ==\nID: [" + str(NewMemberID) +
+                             "](tg://user?id=" + str(NewMemberID) + ")",
                              parse_mode="Markdown")
             bot.delete_message(message.chat.id, message.message_id)
             return
         if message.new_chat_members[0].last_name != None and ver_black(message.new_chat_members[0].last_name):
             bot.kick_chat_member(message.chat.id, NewMemberID, until_date=None)
             bot.send_message(LOGCHATID,
-                             "== BAN AD ==\nID: [" + str(NewMemberID) + "](tg://user?id=" + str(NewMemberID) + ")",
+                             "== BAN AD ==\nID: [" + str(NewMemberID) +
+                             "](tg://user?id=" + str(NewMemberID) + ")",
                              parse_mode="Markdown")
             bot.delete_message(message.chat.id, message.message_id)
             return
@@ -83,15 +87,20 @@ def welcome_new(message):
     global userList
     if str(NewMemberID) in userList:
         bot.kick_chat_member(message.chat.id, NewMemberID, until_date=None)
-        bot.restrict_chat_member(message.chat.id, NewMemberID, until_date=None, can_send_messages=True)
+        bot.restrict_chat_member(
+            message.chat.id, NewMemberID, until_date=None, can_send_messages=True)
+        bot.restrict_chat_member(
+            message.chat.id, NewMemberID, until_date=None, can_send_messages=False)
         userList.pop(str(NewMemberID))
 
 
 def getUrl(userID):
     global userList
-    url = sha1((str(userID) + config.SALT + str(time.time())).encode("utf-8")).hexdigest()
+    url = sha1((str(userID) + config.SALT + str(time.time())
+                ).encode("utf-8")).hexdigest()
     print(url)
-    userList[str(userID)] = sha1(("#" + url).encode("utf-8")).hexdigest().upper()
+    userList[str(userID)] = sha1(
+        ("#" + url).encode("utf-8")).hexdigest().upper()
     return url
 
 
@@ -101,7 +110,8 @@ def scan_message(message):
     if str(message.from_user.id) in userList:
         if message.text not in userList[str(message.from_user.id)]:
             try:
-                bot.kick_chat_member(message.chat.id, message.from_user.id, until_date=None)
+                bot.kick_chat_member(
+                    message.chat.id, message.from_user.id, until_date=None)
             except:
                 pass
         else:
