@@ -47,8 +47,12 @@ def ver_black(name):
 @bot.message_handler(content_types=['new_chat_members'])
 def welcome_new(message):
     NewMemberID = message.new_chat_members[0].id
-    bot.restrict_chat_member(
-        message.chat.id, NewMemberID, until_date=None, can_send_messages=True)
+    try:
+        bot.restrict_chat_member(message.chat.id, NewMemberID, until_date=None, can_send_messages=False,
+                                 can_add_web_page_previews=False, can_send_media_messages=False,
+                                 can_send_other_messages=False)
+    except BaseException:
+        pass
     update_ban_username()
     try:
         if ver_black(message.new_chat_members[0].first_name):
