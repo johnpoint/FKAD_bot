@@ -108,11 +108,11 @@ def getUrl(userID):
     return url
 
 
-@bot.message_handler(regexp='')
+@bot.message_handler(regexp='.+')
 def scan_message(message):
     global userList
     if str(message.from_user.id) in userList:
-        if message.text not in userList[str(message.from_user.id)]:
+        if len(message.text) < 6 or message.text not in userList[str(message.from_user.id)]:
             try:
                 bot.kick_chat_member(
                     message.chat.id, message.from_user.id, until_date=None)
