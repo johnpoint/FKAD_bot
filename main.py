@@ -79,6 +79,9 @@ def welcome_new(message):
                                  can_send_other_messages=False)
     except BaseException:
         pass
+    global userList
+    if str(NewMemberID) in userList:
+        userList.pop(str(NewMemberID))
     msg1 = bot.send_message(message.chat.id,
                             "请 [" + message.new_chat_members[0].first_name + "](tg://user?id=" + str(
                                 NewMemberID) + ") 点击 [链接](" + config.VERURL + "#" + getUrl(
@@ -88,7 +91,6 @@ def welcome_new(message):
     bot.delete_message(message.chat.id, msg1)
     bot.delete_message(message.chat.id, message.message_id)
     time.sleep(30)
-    global userList
     if str(NewMemberID) in userList:
         bot.kick_chat_member(message.chat.id, NewMemberID, until_date=None)
         bot.restrict_chat_member(
