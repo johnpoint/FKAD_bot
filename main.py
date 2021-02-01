@@ -161,6 +161,7 @@ def clean_list():
 if __name__ == '__main__':
     scheduler = BackgroundScheduler()
     scheduler.add_job(clean_list, 'interval', seconds=15)
+    scheduler.start()
     try:
         bot.polling()
     except BaseException:
