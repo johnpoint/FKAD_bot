@@ -49,7 +49,7 @@ def ver_black(name):
 def welcome_new(message):
     global userList
     if str(message.chat.id) not in userList:
-        userList[str(message.chat.id)] = []
+        userList[str(message.chat.id)] = {}
     NewMemberID = message.new_chat_members[0].id
     try:
         bot.restrict_chat_member(message.chat.id, NewMemberID, until_date=None, can_send_messages=False,
