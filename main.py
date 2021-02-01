@@ -1,5 +1,6 @@
 import re
 import telebot
+from apscheduler.schedulers.background import BackgroundScheduler
 import config
 from hashlib import sha1
 import time
@@ -46,6 +47,9 @@ def ver_black(name):
 # 新群员加入进行人机验证
 @bot.message_handler(content_types=['new_chat_members'])
 def welcome_new(message):
+    global userList
+    if str(message.chat.id) not in userList:
+        userList[str(message.chat.id)] = []
     NewMemberID = message.new_chat_members[0].id
     try:
         bot.restrict_chat_member(message.chat.id, NewMemberID, until_date=None, can_send_messages=False,
@@ -79,42 +83,38 @@ def welcome_new(message):
                                  can_send_other_messages=False)
     except BaseException:
         pass
-    global userList
     if str(NewMemberID) in userList:
         userList.pop(str(NewMemberID))
     msg1 = bot.send_message(message.chat.id,
                             "请 [" + message.new_chat_members[0].first_name + "](tg://user?id=" + str(
                                 NewMemberID) + ") 点击 [链接](" + config.VERURL + "#" + getUrl(
-                                NewMemberID) + ") 后在本群回复验证码进行人机检验,回复其他内容将会被立即踢出！",
+                                NewMemberID, message.chat.id) + ") 后在本群回复验证码进行人机检验,回复其他内容将会被立即踢出！",
                             parse_mode="Markdown").message_id
-    time.sleep(30)
-    bot.delete_message(message.chat.id, msg1)
     bot.delete_message(message.chat.id, message.message_id)
-    time.sleep(30)
-    if str(NewMemberID) in userList:
-        bot.kick_chat_member(message.chat.id, NewMemberID, until_date=None)
-        bot.restrict_chat_member(
-            message.chat.id, NewMemberID, until_date=None, can_send_messages=True)
-        bot.restrict_chat_member(
-            message.chat.id, NewMemberID, until_date=None, can_send_messages=False)
-        userList.pop(str(NewMemberID))
+    userList[str(message.chat.id)][str(NewMemberID)].append(NewMemberID)
+    userList[str(message.chat.id)][str(NewMemberID)].append(msg1)
+    userList[str(message.chat.id)][str(NewMemberID)].append(int(time.time()))
 
 
-def getUrl(userID):
+def getUrl(userID, chatID):
     global userList
-    url = sha1((str(userID) + config.SALT + str(time.time())
+    url = sha1((str(userID) + config.SALT + str(time.time() + str(chatID))
                 ).encode("utf-8")).hexdigest()
     print(url)
-    userList[str(userID)] = sha1(
-        ("#" + url).encode("utf-8")).hexdigest().upper()
+    userList[str(chatID)][str(userID)] = [sha1(
+        ("#" + url).encode("utf-8")).hexdigest().upper()]
     return url
 
 
 @bot.message_handler(regexp='.+')
 def scan_message(message):
     global userList
-    if str(message.from_user.id) in userList:
-        if len(message.text) < 6 or message.text not in userList[str(message.from_user.id)]:
+    if str(message.from_user.id) in userList[str(message.chat.id)]:
+        try:
+            bot.delete_message(message.chat.id, userList[str(message.chat.id)][str(message.from_user.id)][2])
+        except:
+            pass
+        if len(message.text) < 6 or message.text not in userList[str(message.chat.id)][str(message.from_user.id)]:
             try:
                 bot.kick_chat_member(
                     message.chat.id, message.from_user.id, until_date=None)
@@ -134,7 +134,33 @@ def scan_message(message):
         bot.delete_message(message.chat.id, message.message_id)
 
 
+def clean_list():
+    print("Check user list")
+    global userList  # url mid msg time
+    uL = userList
+    for i in uL.keys():  # chat id
+        for j in uL[i].keys:
+            if uL[i][j][3] + 15 <= int(time.time()):
+                try:
+                    bot.delete_message(int(i), uL[i][j][2])
+                except:
+                    pass
+            if uL[i][j][3] + 60 <= int(time.time()):
+                NewMemberID = uL[i][1]
+                bot.kick_chat_member(int(i), NewMemberID, until_date=None)
+                bot.restrict_chat_member(
+                    int(i), NewMemberID, until_date=None, can_send_messages=True)
+                bot.restrict_chat_member(
+                    int(i), NewMemberID, until_date=None, can_send_messages=False)
+                uL[i].pop(str(NewMemberID))
+        if len(uL[i]) == 0:
+            uL.pop(i)
+    userList = uL
+
+
 if __name__ == '__main__':
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(clean_list, 'interval', seconds=15)
     try:
         bot.polling()
     except BaseException:
