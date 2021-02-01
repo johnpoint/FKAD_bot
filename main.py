@@ -109,6 +109,8 @@ def getUrl(userID, chatID):
 @bot.message_handler(regexp='.+')
 def scan_message(message):
     global userList
+    if str(message.chat.id) not in userList:
+        userList[str(message.chat.id)] = {}
     if str(message.from_user.id) in userList[str(message.chat.id)]:
         try:
             bot.delete_message(message.chat.id, userList[str(message.chat.id)][str(message.from_user.id)][2])
