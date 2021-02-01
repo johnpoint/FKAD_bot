@@ -98,8 +98,7 @@ def welcome_new(message):
 
 def getUrl(userID, chatID):
     global userList
-    url = sha1((str(userID) + config.SALT + str(time.time() + str(chatID))
-                ).encode("utf-8")).hexdigest()
+    url = sha1((str(userID) + config.SALT + str(time.time()) + str(chatID)).encode("utf-8")).hexdigest()
     print(url)
     userList[str(chatID)][str(userID)] = [sha1(
         ("#" + url).encode("utf-8")).hexdigest().upper()]
