@@ -98,6 +98,8 @@ def welcome_new(message):
 
 def getUrl(userID, chatID):
     global userList
+    if str(chatID) not in userList:
+        userList[str(chatID)] = {}
     url = sha1((str(userID) + config.SALT + str(time.time()) + str(chatID)).encode("utf-8")).hexdigest()
     print(url)
     userList[str(chatID)][str(userID)] = [sha1(
@@ -115,7 +117,7 @@ def scan_message(message):
             bot.delete_message(message.chat.id, userList[str(message.chat.id)][str(message.from_user.id)][2])
         except:
             pass
-        if len(message.text) < 6 or message.text not in userList[str(message.chat.id)][str(message.from_user.id)]:
+        if len(message.text) < 6 or message.text not in userList[str(message.chat.id)][str(message.from_user.id)][0]:
             try:
                 bot.kick_chat_member(
                     message.chat.id, message.from_user.id, until_date=None)
@@ -125,7 +127,7 @@ def scan_message(message):
             bot.restrict_chat_member(message.chat.id, message.from_user.id, until_date=None,
                                      can_send_other_messages=True, can_send_media_messages=True,
                                      can_add_web_page_previews=True, can_send_messages=True)
-            userList.pop(str(message.from_user.id))
+            userList[str(message.chat.id)].pop(str(message.from_user.id))
             try:
                 msg = bot.reply_to(message, "验证成功~").message_id
             except:
@@ -138,25 +140,23 @@ def scan_message(message):
 def clean_list():
     print("Check user list")
     global userList  # url mid msg time
-    uL = userList
+    uL = userList.copy()
     for i in uL.keys():  # chat id
-        for j in uL[i].keys:
+        for j in uL[i].keys():
             if uL[i][j][3] + 15 <= int(time.time()):
                 try:
                     bot.delete_message(int(i), uL[i][j][2])
                 except:
                     pass
             if uL[i][j][3] + 60 <= int(time.time()):
-                NewMemberID = uL[i][1]
-                bot.kick_chat_member(int(i), NewMemberID, until_date=None)
+                bot.kick_chat_member(int(i), int(j), until_date=None)
                 bot.restrict_chat_member(
-                    int(i), NewMemberID, until_date=None, can_send_messages=True)
+                    int(i), int(j), until_date=None, can_send_messages=True)
                 bot.restrict_chat_member(
-                    int(i), NewMemberID, until_date=None, can_send_messages=False)
-                uL[i].pop(str(NewMemberID))
-        if len(uL[i]) == 0:
-            uL.pop(i)
-    userList = uL
+                    int(i), int(j), until_date=None, can_send_messages=False)
+                userList[i].pop(j)
+        if len(userList[i]) == 0:
+            userList.pop(i)
 
 
 if __name__ == '__main__':
