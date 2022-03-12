@@ -39,6 +39,7 @@ func (b *Bot) Run(updates tgbotapi.UpdatesChannel) {
 	for {
 		select {
 		case msg := <-updates:
+			log.Info("Bot.Run", log.Any("update", msg))
 			for i := range matchProcessorSlice {
 				if matchProcessorSlice[i].MatchFunc(msg) {
 					err := matchProcessorSlice[i].Processor(msg)
