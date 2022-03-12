@@ -26,7 +26,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(func() {
 		if configPath == "" {
-			configPath = "config_local.json"
+			configPath = "config_local.yaml"
 		}
 		bootstrap.AddGlobalComponent(
 			&depend.Config{
@@ -34,7 +34,7 @@ func init() {
 			},
 		)
 	})
-	rootCmd.PersistentFlags().StringVar(&configPath, "config", "config_local.json", "config file (default is ./config_local.json)")
+	rootCmd.PersistentFlags().StringVar(&configPath, "config", "config_local.yaml", "config file (default is ./config_local.yaml)")
 
 	rootCmd.AddCommand(httpServerCommand)
 }

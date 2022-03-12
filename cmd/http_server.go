@@ -13,7 +13,10 @@ var httpServerCommand = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
 		i := bootstrap.Helper{}
-		i.AddComponent(&depend.Api{})
+		i.AddComponent(
+			&depend.Api{},
+			&depend.Bot{},
+		)
 		err := i.Init(ctx)
 		if err != nil {
 			panic(err)
