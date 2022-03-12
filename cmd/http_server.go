@@ -14,8 +14,8 @@ var httpServerCommand = &cobra.Command{
 		ctx := context.Background()
 		i := bootstrap.Helper{}
 		i.AddComponent(
-			&depend.Api{},
 			&depend.Bot{},
+			&depend.Api{},
 		)
 		err := i.Init(ctx)
 		if err != nil {
