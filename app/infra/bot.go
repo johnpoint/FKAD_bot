@@ -5,6 +5,7 @@ import (
 	"FkAdBot/pkg/log"
 	"FkAdBot/pkg/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"net/http"
 )
 
 var Bot *BotAPI
@@ -45,7 +46,18 @@ func (b *BotAPI) StartWebhook() tgbotapi.UpdatesChannel {
 	}
 
 	log.Info("BotAPI.StartWebhook", log.String("url", webhookUrl))
-	return b.api.ListenForWebhook("/" + utils.Md5(utils.RandomString()))
+
+	updateChan := b.api.ListenForWebhook("/" + utils.Md5(utils.RandomString()))
+
+	go func() {
+		log.Info("BotAPI.StartWebhook", log.String("info", b.config.Listen))
+		err := http.ListenAndServe(b.config.Listen, nil)
+		if err != nil {
+			return
+		}
+	}()
+
+	return updateChan
 }
 
 func (b *BotAPI) GetBot() *tgbotapi.BotAPI {

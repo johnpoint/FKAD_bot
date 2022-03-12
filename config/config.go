@@ -20,6 +20,7 @@ type TelegramBotConfig struct {
 	Token   string `yaml:"token"`
 	Webhook bool   `yaml:"webhook"`
 	Url     string `yaml:"url"`
+	Listen  string `yaml:"listen"`
 }
 
 func (c *ServiceConfig) SetPath(path string) *ServiceConfig {
