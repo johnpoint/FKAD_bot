@@ -5,3 +5,5 @@ telegram_bot:
   token: token
   webhook: true
   url: https://xxxx.xxx
+  verify_page_url: https://xxx.xxx.workers.dev
+  verify_page_secret: xxxxx
