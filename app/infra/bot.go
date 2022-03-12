@@ -28,7 +28,8 @@ type BotAPI struct {
 }
 
 func (b *BotAPI) StartWebhook() tgbotapi.UpdatesChannel {
-	var webhookUrl = b.config.Url + utils.Md5(utils.RandomString())
+	randomPath := utils.Md5(utils.RandomString())
+	var webhookUrl = b.config.Url + randomPath
 	wh, _ := tgbotapi.NewWebhook(webhookUrl)
 
 	_, err := b.api.Request(wh)
@@ -47,7 +48,7 @@ func (b *BotAPI) StartWebhook() tgbotapi.UpdatesChannel {
 
 	log.Info("BotAPI.StartWebhook", log.String("url", webhookUrl))
 
-	updateChan := b.api.ListenForWebhook("/" + utils.Md5(utils.RandomString()))
+	updateChan := b.api.ListenForWebhook("/" + randomPath)
 
 	go func() {
 		log.Info("BotAPI.StartWebhook", log.String("info", b.config.Listen))
