@@ -28,7 +28,7 @@ var matchProcessorSlice = make([]*matchProcessor, 0)
 
 func init() {
 	NewProcessor(func(update tgbotapi.Update) bool {
-		return update.Message != nil && !update.Message.IsCommand()
+		return update.Message != nil && !update.Message.IsCommand() && len(update.Message.NewChatMembers) == 0
 	}, MessageProcessor) // 消息处理器
 	NewProcessor(func(update tgbotapi.Update) bool {
 		return update.Message != nil && len(update.Message.NewChatMembers) != 0
@@ -56,6 +56,7 @@ func (b *Bot) Run(updates tgbotapi.UpdatesChannel) {
 			log.Info("Bot.Run", log.Any("update", msg))
 			for i := range matchProcessorSlice {
 				if matchProcessorSlice[i].MatchFunc(msg) {
+					log.Info("Bot.Run", log.Any("match!", i))
 					err := matchProcessorSlice[i].Processor(msg)
 					if err != nil {
 						log.Error("Bot.Run", log.Any("update", msg), log.Any("error", err))
@@ -80,6 +81,16 @@ func MessageProcessor(update tgbotapi.Update) error {
 		} else {
 			passJoinGroupVerifyData(joinData)
 		}
+		// 删除入群欢迎消息
+		delMsg := tgbotapi.DeleteMessageConfig{
+			MessageID: update.Message.MessageID,
+			ChatID:    update.Message.Chat.ID,
+		}
+		send, err := infra.Bot.GetBot().Request(delMsg)
+		if err != nil {
+			log.Error("MessageProcessor", log.Any("info", send), log.Any("error", err))
+			//return
+		}
 	}
 	return nil
 }
@@ -99,7 +110,7 @@ func NewMemberProcessor(update tgbotapi.Update) error {
 			ChatID:    update.Message.Chat.ID,
 			MessageID: update.Message.MessageID,
 		}
-		send, err := infra.Bot.GetBot().Send(delMsg)
+		send, err := infra.Bot.GetBot().Request(delMsg)
 		if err != nil {
 			log.Error("NewMemberProcessor", log.Any("info", send), log.Any("error", err))
 			return err
@@ -107,18 +118,39 @@ func NewMemberProcessor(update tgbotapi.Update) error {
 
 		// 新用户进群，禁言
 		req := tgbotapi.RestrictChatMemberConfig{
-			UntilDate:   0,
 			Permissions: &tgbotapi.ChatPermissions{},
 		}
 		req.ChatMemberConfig = tgbotapi.ChatMemberConfig{
 			ChatID: update.Message.Chat.ID,
 			UserID: member.ID,
 		}
-		send, err = infra.Bot.GetBot().Send(req)
+		send, err = infra.Bot.GetBot().Request(req)
 		if err != nil {
 			log.Error("NewMemberProcessor", log.Any("info", send), log.Any("error", err))
 			return err
 		}
+
+		go func() {
+			time.Sleep(10 * time.Second)
+			req := tgbotapi.RestrictChatMemberConfig{
+				Permissions: &tgbotapi.ChatPermissions{
+					CanSendMessages:       true,
+					CanSendMediaMessages:  true,
+					CanSendPolls:          true,
+					CanSendOtherMessages:  true,
+					CanAddWebPagePreviews: true,
+				},
+			}
+			req.ChatMemberConfig = tgbotapi.ChatMemberConfig{
+				ChatID: update.Message.Chat.ID,
+				UserID: member.ID,
+			}
+			send, err = infra.Bot.GetBot().Request(req)
+			if err != nil {
+				log.Error("NewMemberProcessor", log.Any("info", send), log.Any("error", err))
+				//return err
+			}
+		}()
 
 		hashUrl := getUrlHash(member.ID)
 
@@ -133,17 +165,18 @@ func NewMemberProcessor(update tgbotapi.Update) error {
 		)
 		helloMsg.ParseMode = "Markdown"
 
-		send, err = infra.Bot.GetBot().Send(helloMsg)
+		sendResp, err := infra.Bot.GetBot().Send(helloMsg)
 		if err != nil {
 			log.Error("NewMemberProcessor", log.Any("info", send), log.Any("error", err))
-			return err
+			//return err
 		}
 
 		waitVerifyUserMap.Store(member.ID, &JoinGroupVerifyData{
-			ExpireAt: time.Now().Add(60 * time.Second).Unix(),
-			ChatID:   update.Message.Chat.ID,
-			UserID:   member.ID,
-			Url:      hashUrl,
+			ExpireAt:  time.Now().Add(60 * time.Second).Unix(),
+			ChatID:    update.Message.Chat.ID,
+			UserID:    member.ID,
+			Url:       hashUrl,
+			MessageID: sendResp.MessageID,
 		})
 	}
 	return nil
@@ -186,10 +219,10 @@ func kickJoinGroupVerifyData(data *JoinGroupVerifyData) {
 		MessageID: data.MessageID,
 		ChatID:    data.ChatID,
 	}
-	send, err := infra.Bot.GetBot().Send(delMsg)
+	send, err := infra.Bot.GetBot().Request(delMsg)
 	if err != nil {
 		log.Error("kickJoinGroupVerifyData", log.Any("info", send), log.Any("error", err))
-		return
+		//return
 	}
 
 	// 踢用户
@@ -201,10 +234,10 @@ func kickJoinGroupVerifyData(data *JoinGroupVerifyData) {
 		ChatID: data.ChatID,
 		UserID: data.UserID,
 	}
-	send, err = infra.Bot.GetBot().Send(kickUser)
+	send, err = infra.Bot.GetBot().Request(kickUser)
 	if err != nil {
 		log.Error("kickJoinGroupVerifyData", log.Any("info", send), log.Any("error", err))
-		return
+		//return
 	}
 }
 
@@ -225,19 +258,44 @@ func passJoinGroupVerifyData(data *JoinGroupVerifyData) {
 		ChatID: data.ChatID,
 		UserID: data.UserID,
 	}
-	send, err := infra.Bot.GetBot().Send(req)
+	send, err := infra.Bot.GetBot().Request(req)
 	if err != nil {
 		log.Error("passJoinGroupVerifyData", log.Any("info", send), log.Any("error", err))
-		return
+		//return
 	}
 
 	// 发送欢迎消息
 	helloMsg := tgbotapi.NewMessage(data.ChatID, "验证通过，欢迎新群友!")
 	helloMsg.ParseMode = "Markdown"
 
-	send, err = infra.Bot.GetBot().Send(helloMsg)
+	sendResp, err := infra.Bot.GetBot().Send(helloMsg)
 	if err != nil {
 		log.Error("passJoinGroupVerifyData", log.Any("info", send), log.Any("error", err))
-		return
+		//return
+	}
+
+	go func() {
+		time.Sleep(5 * time.Second)
+		// 删除入群欢迎消息
+		delMsg := tgbotapi.DeleteMessageConfig{
+			MessageID: sendResp.MessageID,
+			ChatID:    sendResp.Chat.ID,
+		}
+		send, err = infra.Bot.GetBot().Request(delMsg)
+		if err != nil {
+			log.Error("passJoinGroupVerifyData", log.Any("info", send), log.Any("error", err))
+			//return
+		}
+	}()
+
+	// 删除入群欢迎消息
+	delMsg := tgbotapi.DeleteMessageConfig{
+		MessageID: data.MessageID,
+		ChatID:    data.ChatID,
+	}
+	send, err = infra.Bot.GetBot().Request(delMsg)
+	if err != nil {
+		log.Error("passJoinGroupVerifyData", log.Any("info", send), log.Any("error", err))
+		//return
 	}
 }
