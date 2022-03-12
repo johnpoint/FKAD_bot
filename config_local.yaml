@@ -1,0 +1,7 @@
+service_name: FKAD_bot
+http_server_listen: '0.0.0.0:8999'
+environment: dev
+telegram_bot:
+  token: token
+  webhook: true
+  url: https://xxxx.xxx
