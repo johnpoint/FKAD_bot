@@ -1,9 +1,11 @@
 service_name: FKAD_bot
 http_server_listen: '0.0.0.0:8999'
-environment: dev
+environment: local
 telegram_bot:
   token: token
   webhook: true
   url: https://xxxx.xxx
   verify_page_url: https://xxx.xxx.workers.dev
   verify_page_secret: xxxxx
+  custom_tls_cert: /path/to/cert
+  custom_tls_key: /path/to/key
