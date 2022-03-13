@@ -75,8 +75,8 @@ func MessageProcessor(update tgbotapi.Update) error {
 	v, ok := waitVerifyUserMap.LoadAndDelete(update.Message.From.ID)
 	if ok {
 		joinData := v.(*JoinGroupVerifyData)
-		ver, ok := verifyCodeMap.LoadAndDelete(update.Message.From.ID)
-		if ok && !strings.Contains(ver.(string), update.Message.Text) {
+		ver, _ := verifyCodeMap.LoadAndDelete(update.Message.From.ID)
+		if !strings.Contains(ver.(string), update.Message.Text) || len(update.Message.Text) < 5 {
 			kickJoinGroupVerifyData(joinData)
 		} else {
 			passJoinGroupVerifyData(joinData)
@@ -105,17 +105,6 @@ type JoinGroupVerifyData struct {
 
 func NewMemberProcessor(update tgbotapi.Update) error {
 	for _, member := range update.Message.NewChatMembers {
-		// 删除入群消息
-		delMsg := tgbotapi.DeleteMessageConfig{
-			ChatID:    update.Message.Chat.ID,
-			MessageID: update.Message.MessageID,
-		}
-		send, err := infra.Bot.GetBot().Request(delMsg)
-		if err != nil {
-			log.Error("NewMemberProcessor", log.Any("info", send), log.Any("error", err))
-			return err
-		}
-
 		// 新用户进群，禁言
 		req := tgbotapi.RestrictChatMemberConfig{
 			Permissions: &tgbotapi.ChatPermissions{},
@@ -124,7 +113,18 @@ func NewMemberProcessor(update tgbotapi.Update) error {
 			ChatID: update.Message.Chat.ID,
 			UserID: member.ID,
 		}
-		send, err = infra.Bot.GetBot().Request(req)
+		send, err := infra.Bot.GetBot().Request(req)
+		if err != nil {
+			log.Error("NewMemberProcessor", log.Any("info", send), log.Any("error", err))
+			return err
+		}
+
+		// 删除入群消息
+		delMsg := tgbotapi.DeleteMessageConfig{
+			ChatID:    update.Message.Chat.ID,
+			MessageID: update.Message.MessageID,
+		}
+		send, err = infra.Bot.GetBot().Request(delMsg)
 		if err != nil {
 			log.Error("NewMemberProcessor", log.Any("info", send), log.Any("error", err))
 			return err
@@ -134,11 +134,7 @@ func NewMemberProcessor(update tgbotapi.Update) error {
 			time.Sleep(10 * time.Second)
 			req := tgbotapi.RestrictChatMemberConfig{
 				Permissions: &tgbotapi.ChatPermissions{
-					CanSendMessages:       true,
-					CanSendMediaMessages:  true,
-					CanSendPolls:          true,
-					CanSendOtherMessages:  true,
-					CanAddWebPagePreviews: true,
+					CanSendMessages: true,
 				},
 			}
 			req.ChatMemberConfig = tgbotapi.ChatMemberConfig{
@@ -153,11 +149,12 @@ func NewMemberProcessor(update tgbotapi.Update) error {
 		}()
 
 		hashUrl := getUrlHash(member.ID)
+		expireAt := time.Now().Add(60 * time.Second)
 
 		// 发送欢迎消息
 		helloMsg := tgbotapi.NewMessage(update.Message.Chat.ID,
 			fmt.Sprintf(
-				"请 [新群友](tg://user?id=%d) 点击 [链接](%s/%s) 后在本群回复验证码进行人机检验，回复其他内容将会被立即踢出！",
+				"请 [新群友](tg://user?id=%d) 点击 [链接](%s/%s) 后在本群回复验证码进行人机检验，回复其他内容将会被立即踢出！(60s)\n(入群验证测试阶段，如有问题请联系 @johnpoint)",
 				member.ID,
 				config.Config.TelegramBot.VerifyPageUrl,
 				hashUrl,
@@ -172,7 +169,7 @@ func NewMemberProcessor(update tgbotapi.Update) error {
 		}
 
 		waitVerifyUserMap.Store(member.ID, &JoinGroupVerifyData{
-			ExpireAt:  time.Now().Add(60 * time.Second).Unix(),
+			ExpireAt:  expireAt.Unix(),
 			ChatID:    update.Message.Chat.ID,
 			UserID:    member.ID,
 			Url:       hashUrl,
@@ -188,10 +185,12 @@ func getUrlHash(userID int64) string {
 	hashUrl := utils.RandomString()
 	passCode := utils.RandomString()
 	verifyCodeMap.Store(userID, passCode)
-	err := gout.GET(config.Config.TelegramBot.VerifyPageUrl + "/" + config.Config.TelegramBot.VerifyPageSecret + "/" + hashUrl + "/" + passCode).Do()
+	var body string
+	err := gout.GET(config.Config.TelegramBot.VerifyPageUrl + "/" + config.Config.TelegramBot.VerifyPageSecret + "/" + hashUrl + "/" + passCode).BindBody(&body).Do()
 	if err != nil {
 		log.Error("getUrlHash", log.Any("error", err))
 	}
+	log.Info("getUrlHash", log.String("body", body))
 	return hashUrl
 }
 

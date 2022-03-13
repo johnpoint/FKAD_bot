@@ -28,11 +28,34 @@ type BotAPI struct {
 }
 
 func (b *BotAPI) StartWebhook() tgbotapi.UpdatesChannel {
+	var err error
 	randomPath := utils.Md5(utils.RandomString())
 	var webhookUrl = b.config.Url + randomPath
-	wh, _ := tgbotapi.NewWebhook(webhookUrl)
 
-	_, err := b.api.Request(wh)
+	var wh tgbotapi.WebhookConfig
+	if len(b.config.CustomTLSCert) != 0 {
+		wh, _ = tgbotapi.NewWebhookWithCert(webhookUrl, tgbotapi.FilePath(b.config.CustomTLSCert))
+	} else {
+		wh, _ = tgbotapi.NewWebhook(webhookUrl)
+	}
+
+	log.Info("BotAPI.StartWebhook", log.String("url", webhookUrl))
+
+	updateChan := b.api.ListenForWebhook("/" + randomPath)
+
+	go func() {
+		log.Info("BotAPI.StartWebhook", log.String("info", b.config.Listen))
+		if len(b.config.CustomTLSCert) != 0 && len(b.config.CustomTLSKey) != 0 {
+			err = http.ListenAndServeTLS(b.config.Listen, b.config.CustomTLSCert, b.config.CustomTLSKey, nil)
+		} else {
+			err = http.ListenAndServe(b.config.Listen, nil)
+		}
+		if err != nil {
+			return
+		}
+	}()
+
+	_, err = b.api.Request(wh)
 	if err != nil {
 		panic(err)
 	}
@@ -45,18 +68,6 @@ func (b *BotAPI) StartWebhook() tgbotapi.UpdatesChannel {
 	if info.LastErrorDate != 0 {
 		panic("Telegram callback failed: " + info.LastErrorMessage)
 	}
-
-	log.Info("BotAPI.StartWebhook", log.String("url", webhookUrl))
-
-	updateChan := b.api.ListenForWebhook("/" + randomPath)
-
-	go func() {
-		log.Info("BotAPI.StartWebhook", log.String("info", b.config.Listen))
-		err := http.ListenAndServe(b.config.Listen, nil)
-		if err != nil {
-			return
-		}
-	}()
 
 	return updateChan
 }
