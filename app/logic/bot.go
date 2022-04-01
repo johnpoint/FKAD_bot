@@ -4,6 +4,7 @@ import (
 	"FkAdBot/app/infra"
 	"FkAdBot/config"
 	"FkAdBot/pkg/log"
+	"FkAdBot/pkg/telebot"
 	"FkAdBot/pkg/utils"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -13,64 +14,24 @@ import (
 	"time"
 )
 
-var BotProcessor *Bot
-
-type Bot struct{}
-
-type matchProcessor struct {
-	MatchFunc func(tgbotapi.Update) bool
-	Processor func(update tgbotapi.Update) error
-}
+var Bot *telebot.Bot
 
 var waitVerifyUserMap sync.Map
 
-var matchProcessorSlice = make([]*matchProcessor, 0)
-
 func init() {
-	NewProcessor(func(update tgbotapi.Update) bool {
+	Bot.NewProcessor(func(update tgbotapi.Update) bool {
 		return update.Message != nil && !update.Message.IsCommand() && len(update.Message.NewChatMembers) == 0
 	}, MessageProcessor) // 消息处理器
-	NewProcessor(func(update tgbotapi.Update) bool {
+	Bot.NewProcessor(func(update tgbotapi.Update) bool {
 		return update.Message != nil && len(update.Message.NewChatMembers) != 0
 	}, NewMemberProcessor) // 新用户加入处理器
 
 	go checkWaitMapLoop()
 }
 
-func NewProcessor(match func(tgbotapi.Update) bool, processor func(update tgbotapi.Update) error) {
-	matchProcessorSlice = append(matchProcessorSlice,
-		&matchProcessor{
-			MatchFunc: match,
-			Processor: processor,
-		},
-	)
-}
-
-func (b *Bot) Run(updates tgbotapi.UpdatesChannel) {
-	if updates == nil {
-		panic("updates is nil")
-	}
-	for {
-		select {
-		case msg := <-updates:
-			log.Info("Bot.Run", log.Any("update", msg))
-			for i := range matchProcessorSlice {
-				if matchProcessorSlice[i].MatchFunc(msg) {
-					log.Info("Bot.Run", log.Any("match!", i))
-					err := matchProcessorSlice[i].Processor(msg)
-					if err != nil {
-						log.Error("Bot.Run", log.Any("update", msg), log.Any("error", err))
-					}
-					break
-				}
-			}
-		}
-	}
-}
-
-func MessageProcessor(update tgbotapi.Update) error {
+func MessageProcessor(update tgbotapi.Update) (bool, error) {
 	if update.Message.Chat.Type == "private" || update.Message.Chat.Type == "channel" {
-		return nil
+		return true, nil
 	}
 	v, ok := waitVerifyUserMap.LoadAndDelete(update.Message.From.ID)
 	if ok {
@@ -92,7 +53,7 @@ func MessageProcessor(update tgbotapi.Update) error {
 			//return
 		}
 	}
-	return nil
+	return true, nil
 }
 
 type JoinGroupVerifyData struct {
@@ -103,7 +64,7 @@ type JoinGroupVerifyData struct {
 	Url       string
 }
 
-func NewMemberProcessor(update tgbotapi.Update) error {
+func NewMemberProcessor(update tgbotapi.Update) (bool, error) {
 	for _, member := range update.Message.NewChatMembers {
 		// 新用户进群，禁言
 		req := tgbotapi.RestrictChatMemberConfig{
@@ -116,7 +77,7 @@ func NewMemberProcessor(update tgbotapi.Update) error {
 		send, err := infra.Bot.GetBot().Request(req)
 		if err != nil {
 			log.Error("NewMemberProcessor", log.Any("info", send), log.Any("error", err))
-			return err
+			return true, nil
 		}
 
 		// 删除入群消息
@@ -127,7 +88,7 @@ func NewMemberProcessor(update tgbotapi.Update) error {
 		send, err = infra.Bot.GetBot().Request(delMsg)
 		if err != nil {
 			log.Error("NewMemberProcessor", log.Any("info", send), log.Any("error", err))
-			return err
+			return true, nil
 		}
 
 		go func() {
@@ -176,7 +137,7 @@ func NewMemberProcessor(update tgbotapi.Update) error {
 			MessageID: sendResp.MessageID,
 		})
 	}
-	return nil
+	return true, nil
 }
 
 var verifyCodeMap sync.Map
@@ -186,7 +147,7 @@ func getUrlHash(userID int64) string {
 	passCode := utils.RandomString()
 	verifyCodeMap.Store(userID, passCode)
 	var body string
-	err := gout.GET(config.Config.TelegramBot.VerifyPageUrl + "/" + config.Config.TelegramBot.VerifyPageSecret + "/" + hashUrl + "/" + passCode).BindBody(&body).Do()
+	err := gout.GET(config.Config.TelegramBot.VerifyPageUrl + "/" + config.Config.TelegramBot.VerifyPageSecret + "/" + hashUrl + "/" + passCode[:7]).BindBody(&body).Do()
 	if err != nil {
 		log.Error("getUrlHash", log.Any("error", err))
 	}
