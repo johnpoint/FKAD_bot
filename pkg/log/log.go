@@ -31,6 +31,7 @@ var (
 	Uint64  = zap.Uint64
 	Strings = zap.Strings
 	Any     = zap.Any
+	Err     = zap.Error
 )
 
 type Logger struct {

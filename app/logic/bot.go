@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-var Bot *telebot.Bot
+var Bot = &telebot.Bot{}
 
 var waitVerifyUserMap sync.Map
 

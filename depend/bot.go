@@ -18,6 +18,6 @@ func (d *Bot) Init(ctx context.Context) error {
 		return err
 	}
 
-	go logic.BotProcessor.Run(infra.Bot.StartWebhook())
+	go logic.Bot.Run(infra.Bot.StartWebhook())
 	return nil
 }
