@@ -1,16 +1,48 @@
-const html = `<html>
+const html = `<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="renderer" content="webkit">
-    <meta http-equiv="Cache-Control" content="no-siteapp">
-    <title>人机检验</title>
+    <meta charset="UTF-8">
+    <title>人机验证</title>
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </head>
 <body>
-<p>欢迎加入</p>
-<code id="verCode">{%code}</code>
-<p>以上是您的验证码，请回到群里面直接发送</p>
+<div id="main" class="container flow-text" style="margin: auto">
+    <div class="row">
+        <h2 class="col s12">人机验证页面</h2>
+    </div>
+    <div class="row">
+        <p>您的验证码是: <code>{%code}</code></p>
+    </div>
+</div>
+</body>
+</html>`
+const errHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>人机验证</title>
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</head>
+<body>
+<div id="main" class="container flow-text" style="margin: auto">
+    <div class="row">
+        <h2 class="col s12">人机验证页面</h2>
+    </div>
+    <div class="row">
+        <div class="col s12">
+            <p>该验证请求已经失效，需要重新发起验证</p>
+            <small>错误代码: {%code}</small>
+        </div>
+    </div>
+</div>
 </body>
 </html>`
 const setKey = ""
@@ -26,14 +58,26 @@ addEventListener('fetch', event => {
  */
 async function handleRequest(request) {
     let data = request.url.split("/")
+    let token = ""
     if (data.length >= 4) {
         switch (data[3]) {
             case setKey:
-                FKAD_KV.put(data[4], data[5], {expirationTtl: 60 * 60})
-                break;
+                await FKAD_KV.put(data[4], data[5], {expirationTtl: 60 * 60})
+                token = await FKAD_KV.get(data[4])
+                if (token === data[5]) {
+                    return new Response("OK: " + token)
+                }
+                return new Response("NotOK: " + token)
 
             default:
-                return new Response(html.replace("{%code}", await FKAD_KV.get(data[3])), {
+                token = await FKAD_KV.get(data[3])
+                let body = ""
+                if (token == null) {
+                    body = errHtml.replace("{%code}", data[3])
+                } else {
+                    body = html.replace("{%code}", token)
+                }
+                return new Response(body, {
                     headers: {
                         'content-type': 'text/html;charset=UTF-8',
                     }
