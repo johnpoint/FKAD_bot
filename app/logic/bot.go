@@ -115,7 +115,7 @@ func NewMemberProcessor(update tgbotapi.Update) (bool, error) {
 		// 发送欢迎消息
 		helloMsg := tgbotapi.NewMessage(update.Message.Chat.ID,
 			fmt.Sprintf(
-				"请 [新群友](tg://user?id=%d) 点击 [链接](%s/%s) 后在本群回复验证码进行人机检验，回复其他内容将会被立即踢出！(60s)\n(入群验证测试阶段，如有问题请联系 @johnpoint)",
+				"请 [新群友](tg://user?id=%d) 点击 [链接](%s/%s) 后在本群回复验证码进行人机检验，回复其他内容将会被立即踢出！(60s)",
 				member.ID,
 				config.Config.TelegramBot.VerifyPageUrl,
 				hashUrl,
