@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"FkAdBot/depend"
-	"FkAdBot/pkg/bootstrap"
 	"fmt"
+	"github.com/johnpoint/go-bootstrap"
 	"github.com/spf13/cobra"
 	"os"
 )

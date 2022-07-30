@@ -2,8 +2,9 @@ package cmd
 
 import (
 	"FkAdBot/depend"
-	"FkAdBot/pkg/bootstrap"
+	"FkAdBot/pkg/log"
 	"context"
+	"github.com/johnpoint/go-bootstrap"
 	"github.com/spf13/cobra"
 )
 
@@ -11,13 +12,11 @@ var httpServerCommand = &cobra.Command{
 	Use:   "api",
 	Short: "Start http server",
 	Run: func(cmd *cobra.Command, args []string) {
-		ctx := context.Background()
-		i := bootstrap.Helper{}
-		i.AddComponent(
+		err := bootstrap.NewBoot(
+			context.Background(),
 			&depend.Logger{},
 			&depend.Bot{},
-		)
-		err := i.Init(ctx)
+		).WithLogger(log.GetLogger()).Init()
 		if err != nil {
 			panic(err)
 			return

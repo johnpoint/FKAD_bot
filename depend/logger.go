@@ -2,9 +2,9 @@ package depend
 
 import (
 	"FkAdBot/config"
-	"FkAdBot/pkg/bootstrap"
 	"FkAdBot/pkg/log"
 	"context"
+	"github.com/johnpoint/go-bootstrap"
 	"go.uber.org/zap/zapcore"
 )
 

@@ -2,8 +2,8 @@ package depend
 
 import (
 	"FkAdBot/config"
-	"FkAdBot/pkg/bootstrap"
 	"context"
+	"github.com/johnpoint/go-bootstrap"
 	"math/rand"
 	"time"
 )

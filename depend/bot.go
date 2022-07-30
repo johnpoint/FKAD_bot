@@ -4,8 +4,8 @@ import (
 	"FkAdBot/app/infra"
 	"FkAdBot/app/logic"
 	"FkAdBot/config"
-	"FkAdBot/pkg/bootstrap"
 	"context"
+	"github.com/johnpoint/go-bootstrap"
 )
 
 type Bot struct{}
