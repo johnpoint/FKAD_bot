@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/google/uuid v1.3.0
-	github.com/guonaihong/gout v0.2.11
+	github.com/guonaihong/gout v0.3.1
 	github.com/johnpoint/go-bootstrap v0.0.0-20220730133621-004790cead32
 	github.com/spf13/cobra v1.4.0
 	go.uber.org/zap v1.21.0
