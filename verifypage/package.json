@@ -11,6 +11,6 @@
   "author": "johnpoint <me@lvcshu.com>",
   "license": "MIT",
   "devDependencies": {
-    "prettier": "1.19.1"
+    "prettier": "2.7.1"
   }
 }
