@@ -1,7 +1,5 @@
-# FkAdBot
+# FKAD_bot
+A telegram group verification robot
 
-- [ ] 更改踢人策略
-- [ ] 用户名黑名单支持
-- [x] 入群验证
-- [ ] 自托管验证页面
-- [ ] 验证页面人机验证
+## LICENSE
+Apache License 2.0
