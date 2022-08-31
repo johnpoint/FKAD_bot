@@ -3,16 +3,17 @@ package depend
 import (
 	"FkAdBot/config"
 	"context"
-	"github.com/johnpoint/go-bootstrap"
 	"math/rand"
 	"time"
+
+	"github.com/johnpoint/go-bootstrap/core"
 )
 
 type Config struct {
 	Path string
 }
 
-var _ bootstrap.Component = (*Config)(nil)
+var _ core.Component = (*Config)(nil)
 
 func (d *Config) Init(ctx context.Context) error {
 	rand.Seed(time.Now().UnixNano())

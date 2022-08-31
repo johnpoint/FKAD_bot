@@ -3,15 +3,19 @@ package logic
 import (
 	"FkAdBot/app/infra"
 	"FkAdBot/config"
-	"FkAdBot/pkg/log"
+
+	"github.com/johnpoint/go-bootstrap/log"
+	"go.uber.org/zap"
+
 	"FkAdBot/pkg/telebot"
 	"FkAdBot/pkg/utils"
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/guonaihong/gout"
 	"strings"
 	"sync"
 	"time"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/guonaihong/gout"
 )
 
 var Bot = &telebot.Bot{}
@@ -49,7 +53,7 @@ func MessageProcessor(update tgbotapi.Update) (bool, error) {
 		}
 		send, err := infra.Bot.GetBot().Request(delMsg)
 		if err != nil {
-			log.Error("MessageProcessor", log.Any("info", send), log.Any("error", err))
+			log.Error("MessageProcessor", zap.Any("info", send), zap.Any("error", err))
 			//return
 		}
 	}
@@ -76,7 +80,7 @@ func NewMemberProcessor(update tgbotapi.Update) (bool, error) {
 		}
 		send, err := infra.Bot.GetBot().Request(req)
 		if err != nil {
-			log.Error("NewMemberProcessor", log.Any("info", send), log.Any("error", err))
+			log.Error("NewMemberProcessor", zap.Any("info", send), zap.Any("error", err))
 			return true, nil
 		}
 
@@ -87,7 +91,7 @@ func NewMemberProcessor(update tgbotapi.Update) (bool, error) {
 		}
 		send, err = infra.Bot.GetBot().Request(delMsg)
 		if err != nil {
-			log.Error("NewMemberProcessor", log.Any("info", send), log.Any("error", err))
+			log.Error("NewMemberProcessor", zap.Any("info", send), zap.Any("error", err))
 			return true, nil
 		}
 
@@ -104,7 +108,7 @@ func NewMemberProcessor(update tgbotapi.Update) (bool, error) {
 			}
 			send, err = infra.Bot.GetBot().Request(req)
 			if err != nil {
-				log.Error("NewMemberProcessor", log.Any("info", send), log.Any("error", err))
+				log.Error("NewMemberProcessor", zap.Any("info", send), zap.Any("error", err))
 				//return err
 			}
 		}()
@@ -125,7 +129,7 @@ func NewMemberProcessor(update tgbotapi.Update) (bool, error) {
 
 		sendResp, err := infra.Bot.GetBot().Send(helloMsg)
 		if err != nil {
-			log.Error("NewMemberProcessor", log.Any("info", send), log.Any("error", err))
+			log.Error("NewMemberProcessor", zap.Any("info", send), zap.Any("error", err))
 			//return err
 		}
 
@@ -149,9 +153,9 @@ func getUrlHash(userID int64) string {
 	var body string
 	err := gout.GET(config.Config.TelegramBot.VerifyPageUrl + "/" + config.Config.TelegramBot.VerifyPageSecret + "/" + hashUrl + "/" + passCode[:7]).BindBody(&body).Do()
 	if err != nil {
-		log.Error("getUrlHash", log.Any("error", err))
+		log.Error("getUrlHash", zap.Any("error", err))
 	}
-	log.Info("getUrlHash", log.String("body", body))
+	log.Info("getUrlHash", zap.String("body", body))
 	return hashUrl
 }
 
@@ -181,7 +185,7 @@ func kickJoinGroupVerifyData(data *JoinGroupVerifyData) {
 	}
 	send, err := infra.Bot.GetBot().Request(delMsg)
 	if err != nil {
-		log.Error("kickJoinGroupVerifyData", log.Any("info", send), log.Any("error", err))
+		log.Error("kickJoinGroupVerifyData", zap.Any("info", send), zap.Any("error", err))
 		//return
 	}
 
@@ -196,7 +200,7 @@ func kickJoinGroupVerifyData(data *JoinGroupVerifyData) {
 	}
 	send, err = infra.Bot.GetBot().Request(kickUser)
 	if err != nil {
-		log.Error("kickJoinGroupVerifyData", log.Any("info", send), log.Any("error", err))
+		log.Error("kickJoinGroupVerifyData", zap.Any("info", send), zap.Any("error", err))
 		//return
 	}
 }
@@ -220,7 +224,7 @@ func passJoinGroupVerifyData(data *JoinGroupVerifyData) {
 	}
 	send, err := infra.Bot.GetBot().Request(req)
 	if err != nil {
-		log.Error("passJoinGroupVerifyData", log.Any("info", send), log.Any("error", err))
+		log.Error("passJoinGroupVerifyData", zap.Any("info", send), zap.Any("error", err))
 		//return
 	}
 
@@ -230,7 +234,7 @@ func passJoinGroupVerifyData(data *JoinGroupVerifyData) {
 
 	sendResp, err := infra.Bot.GetBot().Send(helloMsg)
 	if err != nil {
-		log.Error("passJoinGroupVerifyData", log.Any("info", send), log.Any("error", err))
+		log.Error("passJoinGroupVerifyData", zap.Any("info", send), zap.Any("error", err))
 		//return
 	}
 
@@ -243,7 +247,7 @@ func passJoinGroupVerifyData(data *JoinGroupVerifyData) {
 		}
 		send, err = infra.Bot.GetBot().Request(delMsg)
 		if err != nil {
-			log.Error("passJoinGroupVerifyData", log.Any("info", send), log.Any("error", err))
+			log.Error("passJoinGroupVerifyData", zap.Any("info", send), zap.Any("error", err))
 			//return
 		}
 	}()
@@ -255,7 +259,7 @@ func passJoinGroupVerifyData(data *JoinGroupVerifyData) {
 	}
 	send, err = infra.Bot.GetBot().Request(delMsg)
 	if err != nil {
-		log.Error("passJoinGroupVerifyData", log.Any("info", send), log.Any("error", err))
+		log.Error("passJoinGroupVerifyData", zap.Any("info", send), zap.Any("error", err))
 		//return
 	}
 }

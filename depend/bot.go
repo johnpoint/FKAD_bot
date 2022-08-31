@@ -5,12 +5,13 @@ import (
 	"FkAdBot/app/logic"
 	"FkAdBot/config"
 	"context"
-	"github.com/johnpoint/go-bootstrap"
+
+	"github.com/johnpoint/go-bootstrap/core"
 )
 
 type Bot struct{}
 
-var _ bootstrap.Component = (*Bot)(nil)
+var _ core.Component = (*Bot)(nil)
 
 func (d *Bot) Init(ctx context.Context) error {
 	err := infra.InitBotAPI(config.Config.TelegramBot)

@@ -1,7 +1,9 @@
 package telebot
 
 import (
-	"FkAdBot/pkg/log"
+	"github.com/johnpoint/go-bootstrap/log"
+	"go.uber.org/zap"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -41,13 +43,13 @@ func (b *Bot) Run(updates tgbotapi.UpdatesChannel) {
 	for {
 		select {
 		case msg := <-updates:
-			log.Info("Bot.Run", log.Any("update", msg))
+			log.Info("Bot.Run", zap.Any("update", msg))
 			for i := range b.matchProcessorSlice {
 				if b.matchProcessorSlice[i].MatchFunc(msg) {
-					log.Info("Bot.Run", log.Any("match!", i))
+					log.Info("Bot.Run", zap.Any("match!", i))
 					isBreak, err := b.matchProcessorSlice[i].Processor(msg)
 					if err != nil {
-						log.Error("Bot.Run", log.Any("update", msg), log.Any("error", err))
+						log.Error("Bot.Run", zap.Any("update", msg), zap.Any("error", err))
 					}
 					if isBreak {
 						break

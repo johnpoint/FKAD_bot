@@ -2,11 +2,15 @@ package infra
 
 import (
 	"FkAdBot/config"
-	"FkAdBot/pkg/log"
+
+	"github.com/johnpoint/go-bootstrap/log"
+	"go.uber.org/zap"
+
 	"FkAdBot/pkg/utils"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"net/http"
 	"time"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 var Bot *BotAPI
@@ -40,19 +44,19 @@ func (b *BotAPI) StartWebhook() tgbotapi.UpdatesChannel {
 		wh, _ = tgbotapi.NewWebhook(webhookUrl)
 	}
 
-	log.Info("BotAPI.StartWebhook", log.String("url", webhookUrl))
+	log.Info("BotAPI.StartWebhook", zap.String("url", webhookUrl))
 
 	updateChan := b.api.ListenForWebhook("/" + randomPath)
 
 	go func() {
-		log.Info("BotAPI.StartWebhook", log.String("info", b.config.Listen))
+		log.Info("BotAPI.StartWebhook", zap.String("info", b.config.Listen))
 		if len(b.config.CustomTLSCert) != 0 && len(b.config.CustomTLSKey) != 0 {
 			err = http.ListenAndServeTLS(b.config.Listen, b.config.CustomTLSCert, b.config.CustomTLSKey, nil)
 		} else {
 			err = http.ListenAndServe(b.config.Listen, nil)
 		}
 		if err != nil {
-			log.Error("http", log.Err(err))
+			log.Error("http", zap.Error(err))
 			return
 		}
 	}()
@@ -70,7 +74,7 @@ func (b *BotAPI) StartWebhook() tgbotapi.UpdatesChannel {
 	}
 
 	if info.LastErrorDate != 0 {
-		log.Error("WebhookInfo", log.Any("i", info))
+		log.Error("WebhookInfo", zap.Any("i", info))
 		panic("Telegram callback failed: " + info.LastErrorMessage)
 	}
 

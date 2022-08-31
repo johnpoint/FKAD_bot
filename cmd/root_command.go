@@ -3,9 +3,10 @@ package cmd
 import (
 	"FkAdBot/depend"
 	"fmt"
-	"github.com/johnpoint/go-bootstrap"
-	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/johnpoint/go-bootstrap/core"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -28,7 +29,7 @@ func init() {
 		if configPath == "" {
 			configPath = "config_local.yaml"
 		}
-		bootstrap.AddGlobalComponent(
+		core.AddGlobalComponent(
 			&depend.Config{
 				Path: configPath,
 			},

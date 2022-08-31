@@ -2,15 +2,16 @@ package depend
 
 import (
 	"FkAdBot/config"
-	"FkAdBot/pkg/log"
 	"context"
-	"github.com/johnpoint/go-bootstrap"
+
+	"github.com/johnpoint/go-bootstrap/core"
+	"github.com/johnpoint/go-bootstrap/log"
 	"go.uber.org/zap/zapcore"
 )
 
 type Logger struct{}
 
-var _ bootstrap.Component = (*Logger)(nil)
+var _ core.Component = (*Logger)(nil)
 
 func (d *Logger) Init(ctx context.Context) error {
 	var options = make([]log.Option, 0)
