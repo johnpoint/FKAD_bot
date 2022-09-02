@@ -30,6 +30,8 @@ github.com/inconshreveable/mousetrap v1.0.1 h1:U3uMjPSQEBMNp1lFxmllqCPM6P5u/Xq7P
 github.com/inconshreveable/mousetrap v1.0.1/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/johnpoint/go-bootstrap v0.0.2 h1:HAVeJF65yzS8AX6+sI+M88VvUy6HEssV+ndH5k6zNik=
 github.com/johnpoint/go-bootstrap v0.0.2/go.mod h1:n0R455gDh/2GZ3ouaDApZCCFFowQwhbWRStEuAeNzhY=
+github.com/johnpoint/go-bootstrap v0.0.3 h1:AhOuIe9KoJM8JuFi+5Y5L/i91A7Kh9wUaJRhzcGxNCw=
+github.com/johnpoint/go-bootstrap v0.0.3/go.mod h1:7PH1PsuVnYBZV89g8f/Dj4MVYxiOiTvfDZaZtadD4WM=
 github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnrnM=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
 github.com/kr/pretty v0.2.1/go.mod h1:ipq/a2n7PKx3OHsz4KJII5eveXtPO4qwEXGdVfWzfnI=
