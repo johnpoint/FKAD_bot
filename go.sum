@@ -15,6 +15,8 @@ github.com/go-playground/universal-translator v0.18.0 h1:82dyy6p4OuJq4/CByFNOn/j
 github.com/go-playground/universal-translator v0.18.0/go.mod h1:UvRDBj+xPUEGrFYl+lu/H90nyDXpg0fqeB/AQUGNTVA=
 github.com/go-playground/validator/v10 v10.11.0 h1:0W+xRM511GY47Yy3bZUbJVitCNg2BOGlCyvTqsp/xIw=
 github.com/go-playground/validator/v10 v10.11.0/go.mod h1:i+3WkQ1FvaUjjxh1kSvIA4dMGDBiPU55YFDl0WbKdWU=
+github.com/go-playground/validator/v10 v10.11.1 h1:prmOlTVv+YjZjmRmNSF3VmspqJIxJWXmqUsHwfTRRkQ=
+github.com/go-playground/validator/v10 v10.11.1/go.mod h1:i+3WkQ1FvaUjjxh1kSvIA4dMGDBiPU55YFDl0WbKdWU=
 github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1 h1:wG8n/XJQ07TmjbITcGiUaOtXxdrINDz1b0J1w0SzqDc=
 github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1/go.mod h1:A2S0CWkNylc2phvKXWBBdD3K0iGnDBGbzRpISP2zBl8=
 github.com/goccy/go-json v0.9.7 h1:IcB+Aqpx/iMHu5Yooh7jEzJk1JZ7Pjtmys2ukPr7EeM=
@@ -32,6 +34,8 @@ github.com/johnpoint/go-bootstrap v0.0.2 h1:HAVeJF65yzS8AX6+sI+M88VvUy6HEssV+ndH
 github.com/johnpoint/go-bootstrap v0.0.2/go.mod h1:n0R455gDh/2GZ3ouaDApZCCFFowQwhbWRStEuAeNzhY=
 github.com/johnpoint/go-bootstrap v0.0.3 h1:AhOuIe9KoJM8JuFi+5Y5L/i91A7Kh9wUaJRhzcGxNCw=
 github.com/johnpoint/go-bootstrap v0.0.3/go.mod h1:7PH1PsuVnYBZV89g8f/Dj4MVYxiOiTvfDZaZtadD4WM=
+github.com/johnpoint/go-bootstrap v0.0.5 h1:RBEHdCkAk4gS7gb/Fv2PzbopvyWXhpdTVsey3DG06pw=
+github.com/johnpoint/go-bootstrap v0.0.5/go.mod h1:+OjFLLCFu27HIuxAolp7VdshrYyjPPIMuVq1af26qwM=
 github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnrnM=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
 github.com/kr/pretty v0.2.1/go.mod h1:ipq/a2n7PKx3OHsz4KJII5eveXtPO4qwEXGdVfWzfnI=
