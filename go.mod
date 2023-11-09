@@ -7,7 +7,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/guonaihong/gout v0.3.7
 	github.com/johnpoint/go-bootstrap v0.0.5
-	github.com/spf13/cobra v1.7.0
+	github.com/spf13/cobra v1.8.0
 	go.uber.org/zap v1.23.0
 	gopkg.in/yaml.v3 v3.0.1
 )
